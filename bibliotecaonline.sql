@@ -80,3 +80,25 @@ WHERE id_editora IN (
     FROM editoras
     WHERE nome = 'Companhia das Letras'
 );
+
+-- questão 2 -> Liste os nomes dos autores que posuem livros da editora 'Rocco'
+SELECT a.nome
+FROM livros l
+JOIN editoras e ON e.id = l.id_editora
+JOIN autores a ON a.id = l.id_autor
+WHERE id_editora IN (
+	SELECT id 
+    FROM editoras
+    WHERE nome = 'Rocco'
+);
+
+-- questão 3 -> Mostre os titulos dos livros que foram emprestados por algum leitor com o nome 'Ana Clara'
+SELECT l.titulo
+FROM livros l
+JOIN emprestimos e ON l.id = e.id_livro
+JOIN leitores le ON e.id_leitor = le.id
+WHERE id_editora IN (
+	SELECT id 
+    FROM leitores
+    WHERE nome = 'Ana Clara'
+);
