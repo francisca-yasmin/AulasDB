@@ -73,4 +73,8 @@ INSERT INTO Emprestimos (id, id_livro, id_leitor, data_emprestimo, data_devoluca
 -- questão 1 -> Mostre o título e o ano de publicação dos livros cuja editora é “Companhia das Letras”. (subconsulta no Where)
 SELECT titulo, ano_publicacao
 FROM livros l
-
+WHERE id IN (
+	SELECT id 
+    FROM editoras
+    WHERE nome = 'Companhia das Letras'
+);
