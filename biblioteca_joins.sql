@@ -124,4 +124,29 @@ SELECT e.nome_editora
 FROM editoras e;
 
 -- questão 7 ->  Liste os empréstimos com título dos livros (para testar se aparece NULL nos inválidos)
-SELECT 
+SELECT emprestimos.id_emprestimo, livros.titulo
+FROM emprestimos
+LEFT JOIN livros ON livros.id_livro = emprestimos.id_livro;
+
+-- questão 8 -> Tente juntar empréstimos com leitores — o leitor 503 não existe, e será descartado.
+SELECT emprestimos.data AS emprestimo, leitores.nome_leitor 
+FROM emprestimos_leitores
+JOIN emprestimos ON emprestimos_leitores.id_emprestimo = emprestimos.id_emprestimo
+JOIN leitores ON emprestimos_leitores.id_leitor = leitores.id_leitor;
+
+-- questão 9 -> Exiba todos os livros com o nome da editora, mesmo que a editora não tenha publicado nenhum livro.
+SELECT l.titulo, e.nome_editora
+FROM livros l
+RIGHT JOIN editoras e ON l.id_editora = e.id_editora;
+
+-- questão 10 -> Liste todos os leitores e os livros que eles pegaram emprestado, se houver.
+SELECT livros.titulo, leitores.nome_leitor
+FROM leitores
+LEFT JOIN emprestimos_leitores ON leitores.id_leitor = emprestimos_leitores.id_leitor
+LEFT JOIN emprestimos ON emprestimos.id_emprestimo = emprestimos_leitores.id_emprestimo
+LEFT JOIN livros ON emprestimos.id_livro = livros.id_livro;
+
+-- questão 11 -> Mostre os nomes de todos os autores e os títulos de seus livros. Inclua também autores que ainda não têm livros cadastrados.
+SELECT a.nome_autor, l.titulo
+FROM autores a
+LEFT JOIN livros l ON l.id_autor = a.id_autor
