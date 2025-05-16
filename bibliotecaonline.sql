@@ -19,6 +19,7 @@ CREATE TABLE Editoras (
  id INT PRIMARY KEY,
  nome VARCHAR(100)
 );
+
 INSERT INTO Editoras (id, nome) VALUES
 (201, 'Companhia das Letras'),
 (202, 'Editora Globo'),
@@ -73,7 +74,8 @@ INSERT INTO Emprestimos (id, id_livro, id_leitor, data_emprestimo, data_devoluca
 -- questão 1 -> Mostre o título e o ano de publicação dos livros cuja editora é “Companhia das Letras”. (subconsulta no Where)
 SELECT titulo, ano_publicacao
 FROM livros l
-WHERE id IN (
+JOIN editoras e ON l.id_editora = e.id
+WHERE id_editora IN (
 	SELECT id 
     FROM editoras
     WHERE nome = 'Companhia das Letras'
