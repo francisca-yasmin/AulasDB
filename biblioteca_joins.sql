@@ -92,7 +92,6 @@ JOIN livros ON emprestimos.id_livro = livros.id_livro
 JOIN emprestimos_leitores ON emprestimos.id_emprestimo = emprestimos_leitores.id_emprestimo
 JOIN leitores ON leitores.id_leitor = emprestimos_leitores.id_leitor;
 
-
 -- questão 2 -> Mostre todos os livros com o nome do autor, mesmo os que não foram emprestados.
 SELECT livros.titulo, autores.nome_autor
 FROM livros
@@ -104,18 +103,25 @@ FROM autores
 LEFT JOIN livros ON livros.id_autor = autores.id_autor;
 
 -- questão 4 -> Liste todos os livros e editoras, mesmo que o livro não tenha editora ou a editora não tenha livro
-SELECT livros.titulo, editoras.nome_editoras
-FROM livros
-LEFT JOIN 
+SELECT l.titulo, e.nome_editora
+FROM livros l	
+LEFT JOIN editoras e ON l.id_editora = e.id_editora
+UNION 
+SELECT l.titulo, e.nome_editora
+FROM livros l
+RIGHT JOIN editoras e ON l.id_editora = e.id_editora;
 
+-- questão 5 ->  Mostre todas as combinações possíveis entre leitores e livros.
+SELECT l.nome_leitor, li.titulo
+FROM leitores l
+CROSS JOIN livros li;
 
--- full outer join
-SELECT c.nome, p.produto
-FROM clientes c
-LEFT JOIN pedidos p ON c.id = p.cliente_id
-UNION ALL -- union all -> ele traz tudo, inclusive os repetidos
-SELECT c.nome, p.produto
-FROM clientes c
-RIGHT JOIN pedidos p ON c.id = p.cliente_id;
+-- questão 6 -> Mostre todos os nomes de autores e nomes de editoras numa única coluna.
+SELECT a.nome_autor
+FROM autores a
+UNION ALL
+SELECT e.nome_editora
+FROM editoras e;
 
-
+-- questão 7 ->  Liste os empréstimos com título dos livros (para testar se aparece NULL nos inválidos)
+SELECT 
