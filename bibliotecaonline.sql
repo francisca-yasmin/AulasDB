@@ -93,12 +93,86 @@ WHERE id_editora IN (
 );
 
 -- questão 3 -> Mostre os titulos dos livros que foram emprestados por algum leitor com o nome 'Ana Clara'
-SELECT l.titulo
+SELECT titulo
 FROM livros l
-JOIN emprestimos e ON l.id = e.id_livro
-JOIN leitores le ON e.id_leitor = le.id
-WHERE id_editora IN (
-	SELECT id 
-    FROM leitores
-    WHERE nome = 'Ana Clara'
+WHERE id IN (
+	-- retorna os livros que ela pegou
+	SELECT id_livro
+    FROM emprestimos
+    WHERE id_leitor =(
+		-- retorna o id da ana claris
+		SELECT id
+        FROM leitores
+        WHERE nome = 'Ana Clara'
+    )
 );
+
+-- questão 4 -> Mostre os livros que ainda estão emprestados (sem data de devolução). A subconsulta deve retornar os IDs dos livros em aberto.
+SELECT titulo
+FROM livros
+WHERE id IN (
+	SELECT id_livro
+    FROM emprestimos
+    WHERE data_devolucao IS NULL
+);
+
+-- questão 5 -> Mostre os nomes dos autores que escreveram livros que ainda estão emprestados (sem data de devolução). (subconsulta da subconsulta no Where)
+SELECT nome -- pega o nome do autor
+FROM autores
+WHERE id IN (
+	-- retorna os autores
+	SELECT id_autor
+    FROM livros
+    WHERE id IN(
+    -- retorna os livros sem data de devolução
+     SELECT id_livro
+     FROM emprestimos
+     WHERE data_devolucao IS NULL
+     )
+);
+
+-- questão 6 -> Liste os nomes dos leitores que ainda têm livros emprestados.(subconsulta no Where)
+-- mostra os nomes dos leitores
+SELECT nome
+FROM leitores
+WHERE id IN (
+	-- retorna os livros que estão emprestados
+	SELECT id_leitor
+    FROM emprestimos
+    WHERE data_devolucao IS NULL
+);
+
+-- questão 7 -> Mostre os nomes dos leitores e, ao lado, o nome do último livro que cada um pegou emprestado. (Mesmo que os dados estejam fixos, o foco é o uso no SELECT)
+SELECT l.nome, li.titulo
+FROM leitores l
+INNER JOIN emprestimos e ON l.id = e.id_leitor
+INNER JOIN livros li ON e.id_livro = li.id
+WHERE e.data_emprestimo = (
+    SELECT MAX(e.data_emprestimo)
+    FROM emprestimos
+    WHERE id_leitor = l.id
+);
+
+
+-- questão 8 -> Liste os livros com o nome da editora ao lado, usando subconsulta no SELECT.
+SELECT l.titulo,
+	(SELECT nome FROM editoras e WHERE l.id_editora = e.id) AS editora
+FROM livros l;
+
+-- questão 9 -> Liste os nomes e títulos de livros emprestados atualmente, usando uma subconsulta no FROM
+SELECT l.titulo, le.nome
+FROM (SELECT id_livro, id_leitor FROM emprestimos e WHERE data_devolucao IS NULL) as e
+JOIN leitores le ON e.id_leitor = le.id
+JOIN livros l ON e.id_livro = l.id;
+
+-- questão 10 -> Mostre os nomes das editoras que publicaram livros emprestados, usando uma subconsulta no FROM
+SELECT ed.nome AS editora
+FROM (
+    SELECT id_livro
+    FROM emprestimos
+) AS emp
+JOIN livros l ON emp.id_livro = l.id
+JOIN editoras ed ON l.id_editora = ed.id;
+
+
+
