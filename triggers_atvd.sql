@@ -136,7 +136,6 @@ INSERT INTO Usuario (nome, numero_identificacao, email, data_cadastro, nivel_ass
 ('Juliana Costa', 'USR010', 'juliana@email.com', '2023-10-05', 'regular'),
 -- usuario novo
 ('fran', 'USR11', 'fran@gmail.com', '2023-10-06', 'regular');
-
 -- Usuario
 INSERT INTO Usuario (nome, numero_identificacao, email, data_cadastro, nivel_associacao) VALUES 
 -- usuario novo
@@ -162,8 +161,8 @@ SELECT * FROM Usuario;
 -- SELECT * FROM Categoria;
 
 -- tabela auxiliar questão 1 -> Crie uma trigger que insira os dados do usuário excluído na tabela UsuarioExcluido.
-DELETE FROM Usuario WHERE id= 412;
-
+DELETE FROM Usuario WHERE id= 411;
+-- drop trigger trg_delete_usuario;
 DELIMITER //
 
 CREATE TRIGGER trg_delete_usuario
@@ -187,7 +186,11 @@ CREATE TABLE UsuarioExcluido (
 SELECT * FROM UsuarioExcluido;
 
 -- questão 2 -> Crie uma trigger que preenche data_emprestimo com a data atual se ela vier nula.
-/*
+
+INSERT INTO emprestimo(usuario_id, livro_id)
+VALUES
+	(410, 301);
+
 DELIMITER //
 
 CREATE TRIGGER trg_insert_data_emprestimo
@@ -196,13 +199,109 @@ FOR EACH ROW
 BEGIN
 	IF NEW.data_emprestimo IS NULL THEN
     SET NEW.data_emprestimo = CURDATE();
-END IF;
+	END IF;
+END;
 
 //
 DELIMITER ;
 
 SELECT * FROM Emprestimo;
 
-*/
+-- questão 3 -> Crie uma trigger para registrar toda vez que o nome de um livro for alterado.
+
+CREATE TABLE LogTituloLivro (
+ id_livro INT,
+ titulo_antigo VARCHAR(200),
+ titulo_novo VARCHAR(200),
+ data_alteracao DATE
+);
+
+-- novo livro pra editar
+INSERT INTO livro (titulo, isbn, descricao) VALUES
+('Mil beijos de garoto', '123654789', 'A menina é doente e morre e depois ele morre também (não leiam).');
+
+SELECT * FROM livro;
+-- drop trigger trg_update_titulo;
+
+DELIMITER //
+
+CREATE TRIGGER trg_update_titulo
+AFTER UPDATE ON livro
+FOR EACH ROW 
+BEGIN
+	INSERT INTO LogTituloLivro(id_livro, titulo_antigo, titulo_novo, data_alteracao)
+	VALUES (OLD.id, OLD.titulo, NEW.titulo, NOW());
+END;
+//
+
+DELIMITER ;
+
+SELECT * FROM livro;
+-- atualizar o titulo do livro
+UPDATE Livro SET titulo = 'Mil beijos de garoto' WHERE id = 311;
+-- Verificar o log
+SELECT * FROM LogTituloLivro;
+
+-- questão 4 -> Crie uma trigger que registre todo novo usuário em uma tabela de log.
+
+CREATE TABLE LogNovoUsuario (
+ id_usuario INT,
+ nome VARCHAR(100),
+ data_criacao DATE
+);
+
+-- drop trigger trg_insert_usuario
+
+DELIMITER  //
+
+CREATE TRIGGER trg_insert_usuario
+AFTER INSERT ON usuario
+FOR EACH ROW
+BEGIN
+	INSERT INTO LogNovoUsuario(id_usuario, nome, data_criacao)
+    VALUES (NEW.id, NEW.nome, NOW());
+END;
+
+//
+DELIMITER ;
+
+SELECT * FROM usuario;
+
+INSERT INTO Usuario (nome, numero_identificacao, email, data_cadastro, nivel_associacao) VALUES 
+-- usuario novo
+('fran', 'USR11', 'fran@gmail.com', '2024-10-06', 'premium');
+
+SELECT * FROM LogNovoUsuario;
+
+-- questão 5 -> Crie uma trigger que grave o título e o ISBN de todo novo livro inserido.
+
+CREATE TABLE LogInsercaoLivro (
+ id_livro INT,
+ titulo VARCHAR(200),
+ isbn VARCHAR(20),
+ data_insercao DATE
+);
+
+DELIMITER //
+
+CREATE TRIGGER trg_insert_livro
+AFTER INSERT ON Livro
+FOR EACH ROW
+BEGIN
+	INSERT INTO LogInsercaoLivro (id_livro, titulo, isbn, data_insercao)
+    VALUES (NEW.id, NEW.titulo, NEW.isbn, NOW());
+END;
+
+// 
+DELIMITER ;
+
+SELECT * FROM livro;
+
+-- inserção no banco
+INSERT INTO Livro (titulo, isbn, descricao) VALUES 
+('Melhor do que nos filmes', '987654321', 'Livro de romance clichê águia com açúcar');
+
+-- tabela de auditoria
+SELECT * FROM LogInsercaoLivro;
 
 
