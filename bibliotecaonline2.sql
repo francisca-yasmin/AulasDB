@@ -112,3 +112,5 @@ INSERT INTO emprestimo (id_usuario, id_livro, data_emprestimo, data_devolucao) V
 (1, 2, '2024-08-01', '2024-08-10'),
 (2, 1, '2024-08-03', '2024-08-12'),
 (3, 3, '2024-08-05', NULL);
+
+SHOW GRANTS FOR 'root'@'localhost'
